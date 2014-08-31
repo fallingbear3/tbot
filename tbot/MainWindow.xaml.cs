@@ -42,13 +42,17 @@ namespace tbot{
 
             bot = new Bot();
             await bot.Init(profile);
-            await bot.readMyTeets(3);
+            await bot.getMyTweets(3);
         }
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null){
             PropertyChangedEventHandler handler = PropertyChanged;
             if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        private void Clear(object sender, RoutedEventArgs e){
+            BotConsole.Text = "";
         }
     }
 

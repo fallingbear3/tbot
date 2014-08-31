@@ -19,14 +19,38 @@ namespace tbot.bot{
             });
         }
 
-        public async Task readMyTeets(int count){
+        public async Task getMyTweets(int count)
+        {
             List<Status> friendTweets = await (from tweet in twitterCtx.Status
-                where tweet.Type == StatusType.User  && tweet.Count == count
-                select tweet).ToListAsync();
+                                               where tweet.Type == StatusType.User && tweet.Count == count
+                                               select tweet).ToListAsync();
 
-            if (friendTweets != null){
+            if (friendTweets != null)
+            {
                 Console.WriteLine("Tweets: \n");
-                friendTweets.ForEach(tweet =>{
+                friendTweets.ForEach(tweet =>
+                {
+                    if (tweet != null && tweet.User != null)
+                        Console.WriteLine(
+                            "User: " + tweet.User.Name +
+                            "\nTweet: " + tweet.Text +
+                            "\nTweet ID: " + tweet.ID + "\n");
+                });
+            }
+        }
+
+
+        public async Task getTweetsByHashTag(int count)
+        {
+            List<Status> friendTweets = await (from tweet in twitterCtx.Status
+                                               where tweet.Type == StatusType.User && tweet.Count == count
+                                               select tweet).ToListAsync();
+
+            if (friendTweets != null)
+            {
+                Console.WriteLine("Tweets: \n");
+                friendTweets.ForEach(tweet =>
+                {
                     if (tweet != null && tweet.User != null)
                         Console.WriteLine(
                             "User: " + tweet.User.Name +
