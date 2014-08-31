@@ -17,22 +17,21 @@ namespace tbot{
             SetupConsole();
         }
 
-        private Bot Bot { get; set; }
-
         public ProfileManager ProfileManager { get; set; }
+        public BotContext Bot { get; set; }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
         private void SetupConsole(){
-            Console.SetOut(createBotConsoleStream(Colors.Black));
-            Console.SetError(createBotConsoleStream(Colors.Red));
         }
 
         private ConsoleStream createBotConsoleStream(Color streamColor){
             var botConsoleStream = new ConsoleStream(streamColor);
             botConsoleStream.OnConsoleFeed += (feed, color) =>{
-                BotConsole.AppendText(feed, color);
-                OnPropertyChanged("BotConsoleStream");
+                Dispatcher.Invoke(() =>{
+                    BotConsole.AppendText(feed, color);
+                    OnPropertyChanged("BotConsoleStream");
+                });
             };
             return botConsoleStream;
         }
@@ -46,7 +45,7 @@ namespace tbot{
         private void StartBot(object sender, RoutedEventArgs e){
             var profile = (Profile) Profiles.SelectedItem;
             if (checkValid(profile, "You have to choose profile first.") == 1) return;
-            Bot = new Bot(profile);
+            Bot = new BotContext(profile);
         }
 
         [NotifyPropertyChangedInvocator]
@@ -60,13 +59,13 @@ namespace tbot{
         }
 
         private void Cmd(object sender, RoutedEventArgs e){
-            if (checkValid(Bot, "You have to start bot first.") == 1) return;
+           /* if (checkValid(TwitterConnection, "You have to start bot first.") == 1) return;
             try{
-                Bot.Invoke(Commands.Text);
+                TwitterConnection.Invoke(Commands.Text);
             }
             catch (Exception ex){
-                Console.Error.Write(ex.Message+"\n");
-            }
+                Console.Error.Write(ex.Message + "\n");
+            }*/
         }
 
         private int checkValid(Object o, string message){
@@ -93,8 +92,7 @@ namespace tbot{
 
         public event ConsoleFeedHandler OnConsoleFeed;
 
-        public override void Write(char value)
-        {
+        public override void Write(char value){
             base.Write(value);
             if (OnConsoleFeed != null) OnConsoleFeed(value.ToString(), color);
         }

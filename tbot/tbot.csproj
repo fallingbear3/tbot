@@ -72,10 +72,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="CommandWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -84,13 +80,14 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="bot\Bot.cs" />
+    <Compile Include="bot\AbstractBotStrategy.cs" />
+    <Compile Include="bot\BotContext.cs" />
+    <Compile Include="bot\BotStragety.cs" />
+    <Compile Include="bot\RetweetStrategy.cs" />
+    <Compile Include="bot\TwitterConnection.cs" />
     <Compile Include="bot\Profile.cs" />
     <Compile Include="bot\ProfileManager.cs" />
     <Compile Include="bot\Utils.cs" />
-    <Compile Include="CommandWindow.xaml.cs">
-      <DependentUpon>CommandWindow.xaml</DependentUpon>
-    </Compile>
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
@@ -101,6 +98,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="model\TwitterStreamObject.cs" />
     <Compile Include="ProfileWindow.xaml.cs">
       <DependentUpon>ProfileWindow.xaml</DependentUpon>
     </Compile>

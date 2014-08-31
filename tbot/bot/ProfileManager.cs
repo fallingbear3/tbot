@@ -15,6 +15,7 @@ namespace tbot.bot{
         }
 
         public ObservableCollection<Profile> Profiles { get; set; }
+        public event PropertyChangedEventHandler PropertyChanged;
 
         private List<Profile> read(){
             using (var r = new StreamReader(new FileStream("profiles.json", FileMode.OpenOrCreate))){
@@ -33,8 +34,6 @@ namespace tbot.bot{
             string json = JsonConvert.SerializeObject(Profiles.ToArray());
             File.WriteAllText("profiles.json", json);
         }
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         [NotifyPropertyChangedInvocator]
         protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null){
