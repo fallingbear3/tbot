@@ -3,6 +3,25 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="12.5*" />
+                <RowDefinition Height="12.5*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="50" />
+                <ColumnDefinition Width="50*" />
+                <ColumnDefinition Width="50" />
+            </Grid.ColumnDefinitions>
+            <Button Content="+" Grid.RowSpan="2" Click="AddProfile" />
+            <TextBox Grid.Row="0" Grid.Column="1" Text="Profiles:" />
+            <ComboBox Name="Profiles" Grid.Row="1" Grid.Column="1" ItemsSource="{Binding Profiles}" />
+            <Button Content="Start" Grid.Row="0" Grid.RowSpan="2" Grid.Column="2" Click="StartBot" />
+        </Grid>
+        <TextBox Name="BotConsole" Grid.Row="1" Text="{Binding Path=BotConsoleStream}" UndoLimit="0" IsReadOnly = "True"/>
     </Grid>
 </Window>
