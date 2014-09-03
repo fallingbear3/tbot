@@ -1,4 +1,5 @@
-﻿using System.Timers;
+﻿using System;
+using System.Timers;
 
 namespace tbot.bot{
     public class RetweetStrategy : AbstractBotStrategy{
@@ -15,9 +16,18 @@ namespace tbot.bot{
 
         public override void run(){
             if (canRetweet && stream.Count > 0){
-                connection.retweet(stream.Dequeue().Id);
+                rt();
                 stream.Clear();
                 canRetweet = false;
+            }
+        }
+
+        private async void rt(){
+            try{
+                await connection.retweet(stream.Dequeue().Id);
+            }
+            catch (Exception e){
+                Console.WriteLine(e.Message);
             }
         }
     }

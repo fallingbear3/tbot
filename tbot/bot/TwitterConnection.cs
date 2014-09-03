@@ -46,8 +46,8 @@ namespace tbot.bot{
             }
         }
 
-        public async Task retweet(ulong tweetID){
-            await twitterCtx.RetweetAsync(tweetID);
+        public Task retweet(ulong tweetID){
+            return twitterCtx.RetweetAsync(tweetID);
         }
 
         public async Task startStream(IEnumerable<string> keywords){
