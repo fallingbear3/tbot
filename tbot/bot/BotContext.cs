@@ -1,26 +1,20 @@
-﻿using System.ComponentModel;
+﻿using System.Timers;
 
-namespace tbot.bot{
-    public class BotContext{
-        private readonly TwitterConnection TwitterConnection;
-        private BackgroundWorker bw;
+namespace tbot.bot
+{
+    public class BotContext : AbstractBotContext
+    {
+        public BotContext(Profile profile) : base(profile)
+        {
+            var retweetStrategy = new RetweetStrategy(TwitterConnection, "gamedev");
 
-        public BotContext(Profile profile){
-            TwitterConnection = new TwitterConnection(profile);
-            setStrategy(new RetweetStrategy(TwitterConnection, 60, "gamedev"));
+            setStrategy(retweetStrategy, 30000);
         }
 
-        public void setStrategy(BotStragety botStrategy){
-            if (bw != null){
-                bw.CancelAsync();
-            }
-            bw = new BackgroundWorker();
-            bw.DoWork += (sender, args) =>{
-                while (true){
-                    botStrategy.run();
-                }
-            };
-            bw.RunWorkerAsync();
+        public void setStrategy(BotStragety botStrategy, int interval)
+        {
+            var timer = new Timer {Interval = interval, Enabled = true, AutoReset = true};
+            timer.Elapsed += (sender, args) => botStrategy.run();
         }
     }
 }

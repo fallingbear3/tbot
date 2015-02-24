@@ -1,26 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using LinqToTwitter;
+using log4net;
 using Newtonsoft.Json;
 using tbot.model;
 
-namespace tbot.bot{
-    public class TwitterConnection{
+namespace tbot.bot
+{
+    public class TwitterConnection
+    {
         public delegate bool FilterHandler(Streaming streaming);
 
         public delegate void StreamHandler(TwitterStreamObject queue);
 
-        private readonly JsonSerializerSettings settings = new JsonSerializerSettings{
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
+
+        private readonly JsonSerializerSettings settings = new JsonSerializerSettings
+        {
             NullValueHandling = NullValueHandling.Ignore
         };
 
         private readonly TwitterContext twitterCtx;
 
-        public TwitterConnection(Profile profile){
-            twitterCtx = new TwitterContext(new SingleUserAuthorizer{
-                CredentialStore = new SingleUserInMemoryCredentialStore{
+        public TwitterConnection(Profile profile)
+        {
+            log.Info("Twitter connection initiated [profile=" + profile.Name + "]");
+            twitterCtx = new TwitterContext(new SingleUserAuthorizer
+            {
+                CredentialStore = new SingleUserInMemoryCredentialStore
+                {
                     ConsumerKey = profile.ConsumerKey,
                     ConsumerSecret = profile.ConsumerSecret,
                     AccessToken = profile.AccessToken,
@@ -29,7 +39,7 @@ namespace tbot.bot{
             });
         }
 
-        public async Task mytweets(int count){
+        /*  public async Task mytweets(int count){
             List<Status> friendTweets = await (from tweet in twitterCtx.Status
                 where tweet.Type == StatusType.User && tweet.Count == count
                 select tweet).ToListAsync();
@@ -44,29 +54,28 @@ namespace tbot.bot{
                             "\nTweet ID: " + tweet.ID + "\n");
                 });
             }
+        }*/
+
+        public Task retweet(ulong tweetId)
+        {
+            return twitterCtx.RetweetAsync(tweetId);
         }
 
-        public Task retweet(ulong tweetID){
-            return twitterCtx.RetweetAsync(tweetID);
+        public async Task startStream(IEnumerable<string> keywords)
+        {
+            await
+                (from strm in twitterCtx.Streaming
+                    where
+                        strm.Type == StreamingType.Filter &&
+                        strm.Track == string.Join(",", keywords)
+                    select strm)
+                    .StartAsync(async strm => updateStream(strm));
         }
 
-        public async Task startStream(IEnumerable<string> keywords){
-            try{
-                await
-                    (from strm in twitterCtx.Streaming
-                        where
-                            strm.Type == StreamingType.Filter &&
-                            strm.Track == string.Join(",", keywords)
-                        select strm)
-                        .StartAsync(async strm => updateStream(strm));
-            }
-            catch (Exception e){
-                Console.WriteLine(e);
-            }
-        }
-
-        private void updateStream(StreamContent strm){
-            if (OnStreamUpdate != null){
+        private void updateStream(StreamContent strm)
+        {
+            if (OnStreamUpdate != null)
+            {
                 var tso = JsonConvert.DeserializeObject<TwitterStreamObject>(strm.Content, settings);
                 if (tso != null) OnStreamUpdate(tso);
             }

@@ -1,33 +1,39 @@
 ﻿using System;
-using System.Timers;
+using System.Reflection;
+using log4net;
+using tbot.model;
 
-namespace tbot.bot{
-    public class RetweetStrategy : AbstractBotStrategy{
-        private bool canRetweet;
+namespace tbot.bot
+{
+    public class RetweetStrategy : AbstractBotStrategy
+    {
+        private static readonly ILog log = LogManager.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public RetweetStrategy(TwitterConnection connection, int retweetTimer, params string[] hashtags)
-            : base(connection, hashtags){
-            var myTimer = new Timer();
-            myTimer.Elapsed += (sender, args) => canRetweet = true;
-            myTimer.Interval = retweetTimer;
-            myTimer.Enabled = true;
-            myTimer.AutoReset = true;
+        public RetweetStrategy(TwitterConnection connection, params string[] hashtags)
+            : base(connection, hashtags, 300000)
+        {
         }
 
-        public override void run(){
-            if (canRetweet && stream.Count > 0){
-                rt();
-                stream.Clear();
-                canRetweet = false;
-            }
+        public override void run()
+        {
+            retweet();
         }
 
-        private async void rt(){
-            try{
-                await connection.retweet(stream.Dequeue().Id);
-            }
-            catch (Exception e){
-                Console.WriteLine(e.Message);
+        private async void retweet()
+        {
+            TwitterStreamObject tweet = get();
+            if (tweet != null)
+            {
+                log.Info("Retweeting tweet [tweedId=" + tweet.Id + "]");
+                try
+                {
+                    await connection.retweet(tweet.Id);
+                }
+                catch (Exception e)
+                {
+                    log.Error("Retweeting failed " + e.Message);
+                    retweet();
+                }
             }
         }
     }
